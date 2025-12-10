@@ -4,17 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>rxtrn</title>
+
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="favicon.png">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
         :root {
             --bg-color: #050505;
             --grid-color: #1a1a1a;
-            --snake-color: #00ff41; /* Cyberpunk Green */
+            --snake-color: #00ff41;
             --snake-glow: 0 0 10px #00ff41, 0 0 20px #00ff41;
-            --food-color: #ff00ff; /* Magenta */
+            --food-color: #ff00ff;
             --food-glow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-            --text-color: #00ffff; /* Cyan */
+            --text-color: #00ffff;
             --ui-bg: rgba(0, 20, 20, 0.9);
         }
 
@@ -23,24 +27,22 @@
             color: var(--text-color);
             font-family: 'Orbitron', sans-serif;
             margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             overflow: hidden;
-            background-image: 
+            background-image:
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
             background-size: 20px 20px;
-            touch-action: none; /* Prevent scroll on mobile */
+            touch-action: none;
         }
 
-        /* --- NEW BANNER STYLE --- */
         #construction-banner {
-            background-color: var(--text-color); /* Cyan background */
-            color: var(--bg-color); /* Black text */
+            background-color: var(--text-color);
+            color: var(--bg-color);
             padding: 10px 20px;
             margin-bottom: 20px;
             font-size: 1.1rem;
@@ -48,51 +50,42 @@
             border-radius: 5px;
             box-shadow: 0 0 15px var(--text-color);
             transition: opacity 0.5s ease-out;
+            cursor: pointer;
         }
 
         .hidden-banner {
             opacity: 0;
-            /* Using pointer-events: none is crucial so the banner doesn't block clicks after fading */
-            pointer-events: none; 
-            height: 0; /* Collapse height after fade */
+            pointer-events: none;
+            height: 0;
             margin-bottom: 0;
             padding-top: 0;
             padding-bottom: 0;
         }
-        /* -------------------------- */
 
         #game-container {
             position: relative;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
             border: 2px solid var(--text-color);
-            background-color: rgba(0, 0, 0, 0.8);
         }
 
-        canvas {
-            display: block;
-        }
+        canvas { display: block; }
 
         #ui-layer {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
             display: flex;
-            flex-direction: column;
             justify-content: space-between;
+            flex-direction: column;
             padding: 10px;
-            box-sizing: border-box;
         }
 
         .score-board {
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px var(--text-color);
             display: flex;
             justify-content: space-between;
             width: 100%;
-            padding: 0 10px;
+            font-size: 1.2rem;
         }
 
         #start-screen, #game-over-screen {
@@ -106,21 +99,9 @@
             text-align: center;
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
             pointer-events: auto;
-            z-index: 10;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        h1 {
-            margin-top: 0;
-            color: var(--snake-color);
-            text-shadow: var(--snake-glow);
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        .hidden { display: none !important; }
 
         button {
             background: transparent;
@@ -128,354 +109,161 @@
             border: 1px solid var(--text-color);
             padding: 10px 20px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
             cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
             margin-top: 10px;
-            box-shadow: 0 0 5px var(--text-color);
         }
 
-        button:hover {
-            background: var(--text-color);
-            color: #000;
-            box-shadow: 0 0 15px var(--text-color);
-        }
-
-        /* Mobile Controls */
         #mobile-controls {
             display: none;
-            margin-top: 20px;
             grid-template-columns: repeat(3, 60px);
             grid-template-rows: repeat(2, 60px);
             gap: 10px;
-            justify-content: center;
-            user-select: none;
+            margin-top: 20px;
         }
 
         .d-pad-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid var(--text-color);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+            background: rgba(0,255,255,0.2);
             color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
-            -webkit-tap-highlight-color: transparent;
+            font-size: 24px;
         }
 
-        .d-pad-btn:active {
-            background: var(--text-color);
-            color: #000;
-        }
+        .up {grid-column:2}
+        .left {grid-column:1}
+        .down {grid-column:2}
+        .right {grid-column:3}
 
-        .up { grid-column: 2; grid-row: 1; }
-        .left { grid-column: 1; grid-row: 2; }
-        .down { grid-column: 2; grid-row: 2; }
-        .right { grid-column: 3; grid-row: 2; }
-
-        @media (max-width: 768px) {
-            #mobile-controls {
-                display: grid;
-            }
-            h1 { font-size: 1.8rem; }
-            canvas {
-                max-width: 100vw;
-            }
-        }
+        @media (max-width:768px) { #mobile-controls {display:grid;} }
     </style>
 </head>
 <body>
 
-    <div id="construction-banner">
-        Website is under construction. Meanwhile, please enjoy this game.
-    </div>
+<div id="construction-banner">Website under construction. Enjoy the game!</div>
 
-    <div id="game-container">
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        
-        <div id="ui-layer">
-            <div class="score-board">
-                <span>SCORE: <span id="score">0</span></span>
-                <span>HIGH: <span id="high-score">0</span></span>
-            </div>
-        </div>
-
-        <div id="start-screen">
-            <h1>NEON SNAKE</h1>
-            <p>Use Arrow Keys or WASD to Move</p>
-            <button onclick="startGame()">INITIALIZE</button>
-        </div>
-
-        <div id="game-over-screen" class="hidden">
-            <h1 style="color: #ff0055; text-shadow: 0 0 10px #ff0055;">SYSTEM FAILURE</h1>
-            <p>Score: <span id="final-score">0</span></p>
-            <button onclick="startGame()">REBOOT</button>
+<div id="game-container">
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="ui-layer">
+        <div class="score-board">
+            <span>SCORE: <span id="score">0</span></span>
+            <span>HIGH: <span id="high-score">0</span></span>
         </div>
     </div>
 
-    <div id="mobile-controls">
-        <div class="d-pad-btn up" data-dir="up">▲</div>
-        <div class="d-pad-btn left" data-dir="left">◀</div>
-        <div class="d-pad-btn down" data-dir="down">▼</div>
-        <div class="d-pad-btn right" data-dir="right">▶</div>
+    <div id="start-screen">
+        <h1>NEON SNAKE</h1>
+        <button onclick="startGame()">START</button>
     </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const highScoreElement = document.getElementById('high-score');
-        const finalScoreElement = document.getElementById('final-score');
-        const startScreen = document.getElementById('start-screen');
-        const gameOverScreen = document.getElementById('game-over-screen');
-        const constructionBanner = document.getElementById('construction-banner'); // NEW ELEMENT
+    <div id="game-over-screen" class="hidden">
+        <h1>GAME OVER</h1>
+        <p>Score: <span id="final-score">0</span></p>
+        <button onclick="startGame()">RESTART</button>
+    </div>
+</div>
 
-        // Game Settings
-        const gridSize = 20;
-        const tileCount = 20;
-        let gameSpeed = 100;
-        let lastRenderTime = 0;
-        let gameRunning = false;
-        let score = 0;
-        let highScore = localStorage.getItem('snakeHighScore') || 0;
+<div id="mobile-controls">
+    <div class="d-pad-btn up" data-dir="up">▲</div>
+    <div class="d-pad-btn left" data-dir="left">◀</div>
+    <div class="d-pad-btn down" data-dir="down">▼</div>
+    <div class="d-pad-btn right" data-dir="right">▶</div>
+</div>
 
-        highScoreElement.innerText = highScore;
+<script>
+let canvas = document.getElementById("gameCanvas");
+let ctx = canvas.getContext("2d");
 
-        // Game State
-        let snake = [];
-        let food = { x: 10, y: 10 };
-        let dx = 0;
-        let dy = 0;
-        let nextDx = 0;
-        let nextDy = 0;
+let snake, food, dx, dy, nextDx, nextDy, score, highScore;
+let gridSize=20, tileCount=20, speed=120, running=false;
 
-        // Audio Context for Beeps
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+let banner = document.getElementById("construction-banner");
+setTimeout(()=>banner.classList.add("hidden-banner"),7000);
+banner.onclick = ()=>banner.classList.add("hidden-banner");
 
-            if (type === 'eat') {
-                oscillator.type = 'square';
-                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.1);
-            } else if (type === 'die') {
-                oscillator.type = 'sawtooth';
-                oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
-                oscillator.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.3);
-            }
-        }
+highScore = localStorage.getItem("snakeHighScore")||0;
+document.getElementById("high-score").innerText = highScore;
 
-        // --- NEW BANNER FUNCTIONALITY ---
-        function hideBannerAfterDelay() {
-            // Use setTimeout to wait 7000 milliseconds (7 seconds)
-            setTimeout(() => {
-                // Add the CSS class to fade and hide the banner
-                constructionBanner.classList.add('hidden-banner');
-            }, 7000); 
-        }
+function startGame(){
+    snake=[{x:10,y:10},{x:10,y:11},{x:10,y:12}];
+    dx=0;dy=-1;nextDx=0;nextDy=-1;
+    score=0; speed=120; running=true;
+    document.getElementById("score").innerText=0;
+    document.getElementById("start-screen").classList.add("hidden");
+    document.getElementById("game-over-screen").classList.add("hidden");
+    spawnFood();
+    loop();
+}
 
-        // Call the function immediately when the script loads
-        hideBannerAfterDelay();
-        // ---------------------------------
+function loop(){
+    if(!running) return;
+    setTimeout(()=>{update();draw();loop();},speed);
+}
 
+function update(){
+    dx=nextDx; dy=nextDy;
+    let head={x:snake[0].x+dx,y:snake[0].y+dy};
 
-        // Initialize Game
-        function startGame() {
-            // Reset state
-            snake = [{ x: 10, y: 10 }, { x: 10, y: 11 }, { x: 10, y: 12 }]; // Tail down
-            score = 0;
-            dx = 0;
-            dy = -1; // Start moving up
-            nextDx = 0;
-            nextDy = -1;
-            gameSpeed = 120;
-            scoreElement.innerText = score;
-            
-            // UI
-            startScreen.classList.add('hidden');
-            gameOverScreen.classList.add('hidden');
-            gameRunning = true;
-            
-            placeFood();
-            requestAnimationFrame(mainLoop);
-        }
+    if(head.x<0||head.y<0||head.x>=tileCount||head.y>=tileCount) return gameOver();
 
-        function mainLoop(currentTime) {
-            if (!gameRunning) return;
+    for(let s of snake) if(s.x===head.x&&s.y===head.y) return gameOver();
 
-            window.requestAnimationFrame(mainLoop);
+    snake.unshift(head);
+    if(head.x===food.x&&head.y===food.y){
+        score+=10;
+        document.getElementById("score").innerText=score;
+        spawnFood();
+    }else snake.pop();
+}
 
-            const secondsSinceLastRender = (currentTime - lastRenderTime) / 1000;
-            if (secondsSinceLastRender < gameSpeed / 1000) return;
+function draw(){
+    ctx.fillStyle="#050505";
+    ctx.fillRect(0,0,400,400);
+    ctx.shadowBlur=15;ctx.shadowColor="#0f0";
+    snake.forEach((s,i)=>{
+        ctx.fillStyle=i==0?"#ccffcc":"#00ff41";
+        ctx.fillRect(s.x*20,s.y*20,18,18);
+    });
+    ctx.shadowColor="#f0f";
+    ctx.fillStyle="#ff00ff";
+    ctx.fillRect(food.x*20,food.y*20,18,18);
+    ctx.shadowBlur=0;
+}
 
-            lastRenderTime = currentTime;
+function spawnFood(){
+    food={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};
+}
 
-            update();
-            draw();
-        }
+function gameOver(){
+    running=false;
+    document.getElementById("final-score").innerText=score;
+    if(score>highScore){
+        highScore=score;
+        localStorage.setItem("snakeHighScore", highScore);
+        document.getElementById("high-score").innerText=highScore;
+    }
+    document.getElementById("game-over-screen").classList.remove("hidden");
+}
 
-        function update() {
-            // Update direction
-            dx = nextDx;
-            dy = nextDy;
+document.addEventListener("keydown",e=>{
+    if(e.key==="ArrowUp"&&dy!==1){nextDx=0;nextDy=-1;}
+    if(e.key==="ArrowDown"&&dy!==-1){nextDx=0;nextDy=1;}
+    if(e.key==="ArrowLeft"&&dx!==1){nextDx=-1;nextDy=0;}
+    if(e.key==="ArrowRight"&&dx!==-1){nextDx=1;nextDy=0;}
+});
 
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+document.querySelectorAll(".d-pad-btn").forEach(btn=>{
+    btn.onclick = ()=>handle(btn.dataset.dir);
+});
 
-            // Wall Collision (Loop or Die? Let's Die for classic feel)
-            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                gameOver();
-                return;
-            }
+function handle(dir){
+    if(dir==="up"&&dy!==1){nextDx=0;nextDy=-1;}
+    if(dir==="down"&&dy!==-1){nextDx=0;nextDy=1;}
+    if(dir==="left"&&dx!==1){nextDx=-1;nextDy=0;}
+    if(dir==="right"&&dx!==-1){nextDx=1;nextDy=0;}
+}
+</script>
 
-            // Self Collision
-            for (let i = 0; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    gameOver();
-                    return;
-                }
-            }
-
-            snake.unshift(head); // Add new head
-
-            // Food Collision
-            if (head.x === food.x && head.y === food.y) {
-                score += 10;
-                scoreElement.innerText = score;
-                playSound('eat');
-                // Increase speed slightly every 50 points
-                if (score % 50 === 0 && gameSpeed > 50) {
-                    gameSpeed -= 5;
-                }
-                placeFood();
-            } else {
-                snake.pop(); // Remove tail
-            }
-        }
-
-        function draw() {
-            // Clear Screen
-            ctx.fillStyle = '#050505';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Snake
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#00ff41';
-            
-            snake.forEach((part, index) => {
-                // Head is slightly different color
-                ctx.fillStyle = index === 0 ? '#ccffcc' : '#00ff41';
-                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 2, gridSize - 2);
-            });
-
-            // Draw Food
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#ff00ff';
-            ctx.fillStyle = '#ff00ff';
-            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
-
-            // Reset shadow
-            ctx.shadowBlur = 0;
-        }
-
-        function placeFood() {
-            food = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
-            };
-            // Check if food spawned on snake body
-            snake.forEach(part => {
-                if (part.x === food.x && part.y === food.y) {
-                    placeFood();
-                }
-            });
-        }
-
-        function gameOver() {
-            gameRunning = false;
-            playSound('die');
-            finalScoreElement.innerText = score;
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('snakeHighScore', highScore);
-                highScoreElement.innerText = highScore;
-            }
-            gameOverScreen.classList.remove('hidden');
-        }
-
-        // Input Handling
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowUp':
-                case 'w':
-                case 'W':
-                    if (dy !== 1) { nextDx = 0; nextDy = -1; }
-                    break;
-                case 'ArrowDown':
-                case 's':
-                case 'S':
-                    if (dy !== -1) { nextDx = 0; nextDy = 1; }
-                    break;
-                case 'ArrowLeft':
-                case 'a':
-                case 'A':
-                    if (dx !== 1) { nextDx = -1; nextDy = 0; }
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                case 'D':
-                    if (dx !== -1) { nextDx = 1; nextDy = 0; }
-                    break;
-            }
-        });
-
-        // Mobile Controls
-        const dPadButtons = document.querySelectorAll('.d-pad-btn');
-        dPadButtons.forEach(btn => {
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Prevent scrolling or zooming
-                const dir = btn.dataset.dir;
-                handleMobileInput(dir);
-            });
-            btn.addEventListener('click', (e) => { // For mouse testing on desktop
-                const dir = btn.dataset.dir;
-                handleMobileInput(dir);
-            });
-        });
-
-        function handleMobileInput(dir) {
-            if (dir === 'up' && dy !== 1) { nextDx = 0; nextDy = -1; }
-            if (dir === 'down' && dy !== -1) { nextDx = 0; nextDy = 1; }
-            if (dir === 'left' && dx !== 1) { nextDx = -1; nextDy = 0; }
-            if (dir === 'right' && dx !== -1) { nextDx = 1; nextDy = 0; }
-        }
-
-        // Dynamic Resize
-        function resizeGame() {
-            // Currently relies on CSS for scaling.
-        }
-        window.addEventListener('resize', resizeGame);
-
-    </script>
 </body>
 </html>
-
