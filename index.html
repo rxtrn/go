@@ -113,29 +113,14 @@
             display: none !important;
         }
 
-        /* REMOVED H1 STYLES TO REPLACE WITH LOGO STYLES */
-
-        /* --- NEW LOGO STYLES --- */
-        #logo-image {
-            width: 150px; /* Adjust size as needed */
-            height: auto;
-            /* Apply the neon green look using CSS variables */
-            filter: drop-shadow(0 0 10px var(--snake-color)) drop-shadow(0 0 20px var(--snake-color));
-            margin-bottom: 20px;
-            transition: filter 0.2s ease-in-out;
-        }
-
-        #logo-container h1 {
-            /* Fallback text if image doesn't load or for accessibility */
-            margin: 0;
-            font-size: 2.5rem;
+        h1 {
+            margin-top: 0;
             color: var(--snake-color);
             text-shadow: var(--snake-glow);
+            font-size: 2.5rem;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-        /* ------------------------- */
-
 
         button {
             background: transparent;
@@ -198,7 +183,7 @@
             #mobile-controls {
                 display: grid;
             }
-            #logo-image { width: 100px; } /* Smaller on mobile */
+            h1 { font-size: 1.8rem; }
             canvas {
                 max-width: 100vw;
             }
@@ -222,9 +207,7 @@
         </div>
 
         <div id="start-screen">
-            <div id="logo-container">
-                <img id="logo-image" src="no bg rxtrn logo.png" alt="rxtrn logo">
-            </div>
+            <h1>NEON SNAKE</h1>
             <p>Use Arrow Keys or WASD to Move</p>
             <button onclick="startGame()">INITIALIZE</button>
         </div>
@@ -494,5 +477,4 @@
 
     </script>
 </body>
-
-</html>
+</html>1111111
